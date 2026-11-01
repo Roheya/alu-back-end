@@ -8,24 +8,25 @@ import sys
 if __name__ == "__main__":
     employee_id = int(sys.argv[1])
 
-    employee_url = (
-        f"https://jsonplaceholder.typicode.com/users/{employee_id}"
-    )
-    todos_url = (
-        f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
-    )
+    employee = requests.get(
+        "https://jsonplaceholder.typicode.com/users/{}".format(employee_id)
+    ).json()
 
-    employee = requests.get(employee_url).json()
-    todos = requests.get(todos_url).json()
+    todos = requests.get(
+        "https://jsonplaceholder.typicode.com/todos?userId={}".format(
+            employee_id
+        )
+    ).json()
 
     completed_tasks = [
-        task for task in todos if task.get("completed")
+        task for task in todos if task.get("completed") is True
     ]
 
     print(
-        f"Employee {employee.get('name')} is done with tasks"
-        f"({len(completed_tasks)}/{len(todos)}):"
+        "Employee {} is done with tasks({}/{}):".format(
+            employee["name"], len(completed_tasks), len(todos)
+        )
     )
 
     for task in completed_tasks:
-        print(f"\t {task.get('title')}")
+        print("\t {}".format(task["title"]))
