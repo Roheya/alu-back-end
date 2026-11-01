@@ -1,43 +1,41 @@
-
 #!/usr/bin/python3
+"""Exports an employee's tasks to JSON format."""
 
 import json
 import requests
 import sys
 
+
 if __name__ == "__main__":
-    employee_id = int(sys.argv[1])
+    employee_id = sys.argv[1]
 
-    # Get employee information
-    user_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
-    user_response = requests.get(user_url)
-    employee = user_response.json()
+    user_url = (
+        "https://jsonplaceholder.typicode.com/users/{}".format(employee_id)
+    )
+    todos_url = (
+        "https://jsonplaceholder.typicode.com/todos?userId={}".format(
+            employee_id
+        )
+    )
 
-    username = employee["username"]
+    employee = requests.get(user_url).json()
+    todos = requests.get(todos_url).json()
 
-    # Get all tasks belonging to the employee
-    todos_url = f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
-    todos_response = requests.get(todos_url)
-    todos = todos_response.json()
-
-    # Prepare the data in the required JSON format
-    employee_tasks = []
+    tasks = []
 
     for task in todos:
-        employee_tasks.append({
+        task_data = {
             "task": task["title"],
             "completed": task["completed"],
-            "username": username
-        })
+            "username": employee["username"]
+        }
+        tasks.append(task_data)
 
-    # Use employee ID as the main JSON key
     data = {
-        str(employee_id): employee_tasks
+        employee_id: tasks
     }
 
-    # Export data to a JSON file
-    filename = f"{employee_id}.json"
+    filename = "{}.json".format(employee_id)
 
     with open(filename, mode="w", encoding="utf-8") as json_file:
         json.dump(data, json_file)
-
