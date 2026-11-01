@@ -1,40 +1,36 @@
-
 #!/usr/bin/python3
+"""Exports all employees' tasks to JSON format."""
 
 import json
 import requests
 
+
 if __name__ == "__main__":
-    # Get all employees
     users_url = "https://jsonplaceholder.typicode.com/users"
-    users_response = requests.get(users_url)
-    users = users_response.json()
-
-    # Get all tasks
     todos_url = "https://jsonplaceholder.typicode.com/todos"
-    todos_response = requests.get(todos_url)
-    todos = todos_response.json()
 
-    # Store tasks for every employee
+    users = requests.get(users_url).json()
+    todos = requests.get(todos_url).json()
+
     all_tasks = {}
 
     for user in users:
-        employee_id = str(user["id"])
+        user_id = str(user["id"])
         username = user["username"]
-
-        employee_tasks = []
+        all_tasks[user_id] = []
 
         for task in todos:
             if task["userId"] == user["id"]:
-                employee_tasks.append({
+                task_data = {
                     "username": username,
                     "task": task["title"],
                     "completed": task["completed"]
-                })
+                }
+                all_tasks[user_id].append(task_data)
 
-        all_tasks[employee_id] = employee_tasks
-
-    # Export all employee tasks to JSON
-    with open("todo_all_employees.json", "w", encoding="utf-8") as json_file:
+    with open(
+        "todo_all_employees.json",
+        mode="w",
+        encoding="utf-8"
+    ) as json_file:
         json.dump(all_tasks, json_file)
-
