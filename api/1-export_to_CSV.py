@@ -1,6 +1,5 @@
-
 #!/usr/bin/python3
-"""Export an employee's TODO list to a CSV file."""
+"""Exports an employee's tasks to CSV format."""
 
 import csv
 import requests
@@ -8,20 +7,22 @@ import sys
 
 
 if __name__ == "__main__":
-    employee_id = int(sys.argv[1])
+    employee_id = sys.argv[1]
 
-    employee = requests.get(
-        "https://jsonplaceholder.typicode.com/users/{}".format(employee_id)
-    ).json()
+    user_url = "https://jsonplaceholder.typicode.com/users/{}".format(
+        employee_id
+    )
+    todos_url = "https://jsonplaceholder.typicode.com/todos?userId={}".format(
+        employee_id
+    )
 
-    todos = requests.get(
-        "https://jsonplaceholder.typicode.com/todos?userId={}".format(
-            employee_id
-        )
-    ).json()
+    employee = requests.get(user_url).json()
+    todos = requests.get(todos_url).json()
 
-    with open("{}.csv".format(employee_id), "w", newline="") as csvfile:
-        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+    filename = "{}.csv".format(employee_id)
+
+    with open(filename, mode="w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
 
         for task in todos:
             writer.writerow([
@@ -30,4 +31,3 @@ if __name__ == "__main__":
                 task["completed"],
                 task["title"]
             ])
-
